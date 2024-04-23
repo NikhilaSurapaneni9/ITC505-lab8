@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Validation</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    form {
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .error {
+        color: red;
+    }
+
+    input[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+<script>
+    // Function to encode user input to prevent XSS
+    function encodeHTML(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Function to set secure attributes for cookies
+    function setSecureCookies() {
+        document.cookie = 'HttpOnlyCookie=HttpOnly; HttpOnly';
+        document.cookie = 'SecureCookie=Secure; Secure';
+    }
+</script>
+</head>
+<body>
+
+<h2>Registration Form</h2>
+<form id="myForm" onsubmit="return validateForm()">
+    <div>
+        <label for="fname">First Name:</label><br>
+        <input type="text" id="fname" name="fname" onblur="this.value = encodeHTML(this.value)"><br>
+        <span id="fnameError" class="error"></span>
+    </div>
+    <div>
+        <label for="lname">Last Name:</label><br>
+        <input type="text" id="lname" name="lname" onblur="this.value = encodeHTML(this.value)"><br>
+        <span id="lnameError" class="error"></span>
+    </div>
+    <div>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" onblur="this.value = encodeHTML(this.value)"><br>
+        <span id="emailError" class="error"></span>
+    </div>
+    <div>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <span id="passwordError" class="error"></span>
+    </div>
+    <div>
+        <label for="confirmPassword">Confirm Password:</label><br>
+        <input type="password" id="confirmPassword" name="confirmPassword"><br>
+        <span id="confirmPasswordError" class="error"></span>
+    </div>
+    <input type="submit" value="Submit">
+</form>
+
+<script>
+    function validateForm() {
+        var fname = document.getElementById('fname').value;
+        var lname = document.getElementById('lname').value;
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        var confirmPassword = document.getElementById('confirmPassword').value;
+        
+        // Clear previous error messages
+        document.getElementById('fnameError').innerHTML = '';
+        document.getElementById('lnameError').innerHTML = '';
+        document.getElementById('emailError').innerHTML = '';
+        document.getElementById('passwordError').innerHTML = '';
+        document.getElementById('confirmPasswordError').innerHTML = '';
+
+        var isValid = true;
+
+        // Check for empty fields
+        if (fname === '') {
+            document.getElementById('fnameError').innerHTML = 'First name is required';
+            isValid = false;
+        }
+        if (lname === '') {
+            document.getElementById('lnameError').innerHTML = 'Last name is required';
+            isValid = false;
+        }
+        if (email === '') {
+            document.getElementById('emailError').innerHTML = 'Email is required';
+            isValid = false;
+        }
+        if (password === '') {
+            document.getElementById('passwordError').innerHTML = 'Password is required';
+            isValid = false;
+        }
+        if (confirmPassword === '') {
+            document.getElementById('confirmPasswordError').innerHTML = 'Please confirm your password';
+            isValid = false;
+        }
+
+        // Validate email format
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('emailError').innerHTML = 'Invalid email format';
+            isValid = false;
+        }
+
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            document.getElementById('confirmPasswordError').innerHTML = 'Passwords do not match';
+            isValid = false;
+        }
+
+        return isValid;
+    }
+  
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        if (!validateForm()) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+
+
+    // Content Security Policy (CSP) header
+    var meta = document.createElement('meta');
+    meta.httpEquiv = "Content-Security-Policy";
+    meta.content = "default-src 'self'";
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    
+    // Set secure attributes for cookies
+    setSecureCookies();
+</script>
+
+</body>
+</html>
